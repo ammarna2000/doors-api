@@ -84,3 +84,55 @@ def create_measurement(data: Measurement):
         "width_final": width_final,
         "height_final": height_final
     }
+
+
+
+
+
+@app.get("/measurement/{contract_number}/{item_number}")
+def get_measurement(contract_number: str, item_number: str):
+
+    conn = psycopg2.connect(DATABASE_URL)
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT
+            id,
+            contract_number,
+            item_number,
+            width_1,
+            width_2,
+            width_3,
+            height_1,
+            height_2,
+            height_3,
+            width_final,
+            height_final,
+            status
+        FROM door_measurements
+        WHERE contract_number=%s
+        AND item_number=%s
+    """, (contract_number, item_number))
+
+    row = cur.fetchone()
+
+    cur.close()
+    conn.close()
+
+    if not row:
+        return {"error": "not found"}
+
+    return {
+        "id": row[0],
+        "contract_number": row[1],
+        "item_number": row[2],
+        "width_1": row[3],
+        "width_2": row[4],
+        "width_3": row[5],
+        "height_1": row[6],
+        "height_2": row[7],
+        "height_3": row[8],
+        "width_final": row[9],
+        "height_final": row[10],
+        "status": row[11]
+    }
