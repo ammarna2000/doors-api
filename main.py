@@ -136,3 +136,41 @@ def get_measurement(contract_number: str, item_number: str):
         "height_final": row[10],
         "status": row[11]
     }
+
+
+
+@app.get("/measurements")
+def get_measurements():
+
+    conn = psycopg2.connect(DATABASE_URL)
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT
+            id,
+            contract_number,
+            item_number,
+            width_final,
+            height_final,
+            status
+        FROM door_measurements
+        ORDER BY id DESC
+        LIMIT 100
+    """)
+
+    rows = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    return [
+        {
+            "id": r[0],
+            "contract_number": r[1],
+            "item_number": r[2],
+            "width_final": r[3],
+            "height_final": r[4],
+            "status": r[5]
+        }
+        for r in rows
+    ]
